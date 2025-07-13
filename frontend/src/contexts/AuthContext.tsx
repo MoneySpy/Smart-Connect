@@ -26,6 +26,37 @@ interface RegisterData {
   role?: 'user'
 }
 
+// Mock user data for testing
+const mockUsers = [
+  {
+    id: '1',
+    email: 'admin@emspro.com',
+    password: 'password123',
+    name: 'ผู้ดูแลระบบ',
+    role: 'admin' as const,
+    department: 'ไอที',
+    position: 'ผู้ดูแลระบบ'
+  },
+  {
+    id: '2',
+    email: 'manager@emspro.com',
+    password: 'password123',
+    name: 'ผู้จัดการ',
+    role: 'manager' as const,
+    department: 'การตลาด',
+    position: 'ผู้จัดการ'
+  },
+  {
+    id: '3',
+    email: 'user@emspro.com',
+    password: 'password123',
+    name: 'พนักงาน',
+    role: 'user' as const,
+    department: 'ขาย',
+    position: 'พนักงาน'
+  }
+]
+
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export const useAuth = () => {
@@ -49,55 +80,40 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   useEffect(() => {
     // Check for existing token and validate
     const token = localStorage.getItem('authToken')
-    if (token) {
-      // Validate token with backend
-      validateToken(token)
-    } else {
-      setIsLoading(false)
-    }
-  }, [])
-
-  const validateToken = async (token: string) => {
-    try {
-      // Mock API call - replace with actual backend call
-      const response = await fetch('/api/auth/validate', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      })
-      
-      if (response.ok) {
-        const userData = await response.json()
+    const savedUser = localStorage.getItem('user')
+    
+    if (token && savedUser) {
+      try {
+        const userData = JSON.parse(savedUser)
         setUser(userData)
-      } else {
+      } catch (error) {
+        console.error('Failed to parse saved user:', error)
         localStorage.removeItem('authToken')
+        localStorage.removeItem('user')
       }
-    } catch (error) {
-      console.error('Token validation failed:', error)
-      localStorage.removeItem('authToken')
-    } finally {
-      setIsLoading(false)
     }
-  }
+    
+    setIsLoading(false)
+  }, [])
 
   const login = async (email: string, password: string) => {
     setIsLoading(true)
     try {
-      // Mock API call - replace with actual backend call
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ email, password })
-      })
-
-      if (response.ok) {
-        const { user: userData, token } = await response.json()
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      
+      // Find user in mock data
+      const mockUser = mockUsers.find(u => u.email === email && u.password === password)
+      
+      if (mockUser) {
+        const { password: _, ...userData } = mockUser
+        const token = `mock-token-${Date.now()}`
+        
         localStorage.setItem('authToken', token)
+        localStorage.setItem('user', JSON.stringify(userData))
         setUser(userData)
       } else {
-        throw new Error('Login failed')
+        throw new Error('Invalid email or password')
       }
     } catch (error) {
       console.error('Login error:', error)
@@ -109,28 +125,37 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const logout = () => {
     localStorage.removeItem('authToken')
+    localStorage.removeItem('user')
     setUser(null)
   }
 
   const register = async (userData: RegisterData) => {
     setIsLoading(true)
     try {
-      // Mock API call - replace with actual backend call
-      const response = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(userData)
-      })
-
-      if (response.ok) {
-        const { user: newUser, token } = await response.json()
-        localStorage.setItem('authToken', token)
-        setUser(newUser)
-      } else {
-        throw new Error('Registration failed')
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      
+      // Check if email already exists
+      const existingUser = mockUsers.find(u => u.email === userData.email)
+      if (existingUser) {
+        throw new Error('Email already exists')
       }
+      
+      // Create new user
+      const newUser: User = {
+        id: Date.now().toString(),
+        email: userData.email,
+        name: userData.name,
+        role: 'user',
+        department: 'ทั่วไป',
+        position: 'พนักงาน'
+      }
+      
+      const token = `mock-token-${Date.now()}`
+      
+      localStorage.setItem('authToken', token)
+      localStorage.setItem('user', JSON.stringify(newUser))
+      setUser(newUser)
     } catch (error) {
       console.error('Registration error:', error)
       throw error
