@@ -1,6 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import { BrowserRouter } from 'react-router-dom'
+import { HashRouter } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { Toaster } from 'react-hot-toast'
@@ -165,7 +165,7 @@ root.render(
   <React.StrictMode>
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
-        <BrowserRouter>
+        <HashRouter>
           <ThemeProvider>
             <AuthProvider>
               <SocketProvider>
@@ -187,7 +187,7 @@ root.render(
               </SocketProvider>
             </AuthProvider>
           </ThemeProvider>
-        </BrowserRouter>
+        </HashRouter>
       </QueryClientProvider>
     </ErrorBoundary>
   </React.StrictMode>

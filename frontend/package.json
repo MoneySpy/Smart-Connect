@@ -10,7 +10,9 @@
     "preview": "vite preview",
     "test": "vitest",
     "test:ui": "vitest --ui",
-    "test:coverage": "vitest --coverage"
+    "test:coverage": "vitest --coverage",
+    "postbuild": "cp ./dist/index.html ./dist/404.html",
+    "deploy": "npm run build && npm run postbuild && npx gh-pages -d dist"
   },
   "dependencies": {
     "react": "^18.2.0",
@@ -74,6 +76,7 @@
     "vite": "^5.0.0",
     "vitest": "^1.0.0",
     "@vitest/ui": "^1.0.0",
-    "@vitest/coverage-v8": "^1.0.0"
+    "@vitest/coverage-v8": "^1.0.0",
+    "gh-pages": "^6.0.0"
   }
 } 
